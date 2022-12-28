@@ -1,0 +1,16 @@
+*.o
+*.so
+*.dll
+*.exe
+*.dylib
+*.out
+*.dSYM
+tags
+bin/*
+!bin/.gitkeep
+external/*
+!external/install.sh
+*.swp
+*.swo
+.idea/
+.vscode/
