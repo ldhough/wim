@@ -8,6 +8,8 @@
 tags
 bin/*
 !bin/.gitkeep
+obj/*
+!obj/.gitkeep
 external/*
 !external/install.sh
 *.swp
