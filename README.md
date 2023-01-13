@@ -1,3 +1,3 @@
-# wim - The modal window manager
+# wim - The modal (wi)ndow (m)anager
 
 ### Like vim for your windows
