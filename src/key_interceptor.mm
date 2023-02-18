@@ -7,7 +7,7 @@
 CGEventRef key_interceptor_callback(CGEventTapProxy proxy, CGEventType event_type, CGEventRef event, void *data) {
     int64_t code = CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode);
     KeyInterceptor *ki = (KeyInterceptor*) data;
-    if (code > ki->actions_max) return event;
+    if (code >= ki->actions.size()) return event;
     auto action = ki->actions[code];
     if (action == nullptr) return event;
     action();
@@ -18,7 +18,6 @@ KeyInterceptor::KeyInterceptor() {}
 
 KeyInterceptor::~KeyInterceptor() {
     this->disable();
-    free(actions);
 }
 
 void KeyInterceptor::start() {
@@ -32,7 +31,12 @@ bool KeyInterceptor::is_active() {
     return false;
 }
 
-void KeyInterceptor::add_intercept_action(Keycode code, std::function<void(void)> action_cb) {}
+void KeyInterceptor::add_intercept_action(Keycode code, std::function<void(void)> action_cb) {
+    if (code >= this->actions.size()) {
+        this->actions.resize(code + 1, nullptr);
+    }
+    this->actions[code] = action_cb;
+}
 
 void KeyInterceptor::remove_intercept_action(Keycode code) {}
 

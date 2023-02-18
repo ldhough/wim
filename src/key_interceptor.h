@@ -1,6 +1,7 @@
 #ifndef KEY_INTERCEPTOR_H
 #define KEY_INTERCEPTOR_H
 
+#include <vector>
 #include <functional>
 
 #if defined(__MACH__)
@@ -12,8 +13,7 @@
 
 class KeyInterceptor {
     private:
-        int actions_max = -1;
-        std::function<void(void)> *actions = nullptr;
+        std::vector<std::function<void(void)>> actions;
 #if defined(__MACH__)
         CFMachPortRef port;
         friend CGEventRef key_interceptor_callback(CGEventTapProxy, CGEventType, CGEventRef, void*);

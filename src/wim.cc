@@ -7,6 +7,7 @@
 #include "pid_observer.h"
 #include "display_manager.h"
 #include "key_interceptor.h"
+#include "window_transformer.h"
 
 using std::cout, std::endl, std::string;
 
@@ -19,7 +20,12 @@ int main(int argc, const char **argv) {
 //    bool wim_on = true;
 //    fd_set fds;
 //    int command_fd = 0;
+    auto window_pids = PidObserver::get_window_pids();
+    for (auto pid : window_pids) {
+        cout << pid << endl;
+    }
 
+    cout << "Creating key interceptor object" << endl;
     KeyInterceptor ki;
 
     struct ev_loop *loop = ev_default_loop(0);
