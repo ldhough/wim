@@ -11,37 +11,30 @@
 
 using std::cout, std::endl, std::string;
 
-void stdin_callback(struct ev_loop *_loop, ev_io *watcher, int revents) {
-    cout << "stdin cb logging" << endl;
+void key_press_callback(struct ev_loop *_loop, ev_io *watcher, int revents) {
+	static unsigned int cb_2_counter = 0;
+	cout << "key_press_callback(): event on fd: " << watcher->fd << endl;
+	char buff[2] = {0};
+	read(watcher->fd, buff, sizeof(buff));
+	cout << "buff is: " << string(buff) << endl;
+	cb_2_counter++;
 }
 
 int main(int argc, const char **argv) {
     cout << "wim initializing" << endl;
-//    bool wim_on = true;
-//    fd_set fds;
-//    int command_fd = 0;
     auto window_pids = PidObserver::get_window_pids();
     for (auto pid : window_pids) {
-        cout << pid << endl;
+        cout << "Window pid: " << pid << endl;
     }
-
     cout << "Creating key interceptor object" << endl;
     KeyInterceptor ki;
-
+	int notification_fd = ki.start();
+	cout << "notification_fd is: "<< notification_fd << endl;
     struct ev_loop *loop = ev_default_loop(0);
-    ev_io stdin_watcher;
-    // esc watcher
-    // ev_init(&esc_watcher, esc_callback
-    ev_io_init(&stdin_watcher, stdin_callback, STDIN_FILENO, EV_READ);
-    ev_io_start(loop, &stdin_watcher);
+	ev_io key_press_watcher;
+	ev_io_init(&key_press_watcher, key_press_callback, notification_fd, EV_READ);
+	ev_io_start(loop, &key_press_watcher);
     ev_set_timeout_collect_interval(loop, 0.01f);
     ev_run(loop, 0);
-
-//    while (wim_on) {
-//        FD_ZERO(&fds);
-//        FD_SET(command_fd, &fds);
-//        if (select(command_fd+1, &fds, NULL, NULL, NULL) > 0) {
-//        }
-//    }
     return 0;
 }
