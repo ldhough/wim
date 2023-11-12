@@ -9,6 +9,10 @@
 #include "key_interceptor.h"
 #include "window_transformer.h"
 
+#ifdef USING_VOICE_COMMANDS
+#include "voice_interceptor.h"
+#endif
+
 using std::cout, std::endl, std::string;
 
 void key_press_callback(struct ev_loop *_loop, ev_io *watcher, int revents) {
@@ -29,6 +33,10 @@ int main(int argc, const char **argv) {
     cout << "Creating key interceptor object" << endl;
     KeyInterceptor ki;
 	int notification_fd = ki.start();
+#ifdef USING_VOICE_COMMANDS
+	VoiceInterceptor vi;
+	int status = vi.start();
+#endif
 	cout << "notification_fd is: "<< notification_fd << endl;
     struct ev_loop *loop = ev_default_loop(0);
 	ev_io key_press_watcher;

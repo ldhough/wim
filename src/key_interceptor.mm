@@ -6,6 +6,7 @@
 #import <Foundation/Foundation.h>
 #import <CoreGraphics/CoreGraphics.h>
 #include "key_interceptor.h"
+#include "event_interceptor.h"
 #include "keycodes.h"
 
 using std::cout, std::endl;
@@ -17,7 +18,7 @@ CGEventRef key_interceptor_callback(CGEventTapProxy proxy, CGEventType event_typ
     KeyInterceptor *ki = (KeyInterceptor*) data;
     //if (code >= ki->actions.size()) return event;
     cout << "Pressed code: " << code << endl;
-    char notification_code = 'N';
+    char notification_code = (char) code;
     write(ki->notification_write_fd, &notification_code, 1);
     //auto action = ki->actions[code];
     //if (action == nullptr) return event;
@@ -31,8 +32,11 @@ KeyInterceptor::~KeyInterceptor() {
     this->disable();
 }
 
-int KeyInterceptor::start() {
+int KeyInterceptor::_start_internal() {
     if (this->started) return -1;
+    if (this->notification_read_fd == -1 || this->notification_write_fd == -1) {
+        throw std::runtime_error("read and write file descriptors are not set, only call this function from within EventInterceptor::start");
+    }
     CGEventMask mask(1 << kCGEventKeyDown);
     this->port = CGEventTapCreate(kCGHIDEventTap,
                                   kCGHeadInsertEventTap,
@@ -41,12 +45,6 @@ int KeyInterceptor::start() {
     if (!this->port) {
         throw std::runtime_error("Failed to create key down event tap!");
     }
-    int pipe_fds[2];
-    if (pipe(pipe_fds) < 0) {
-        throw std::runtime_error("Failed to create event notification pipe!");
-    }
-    this->notification_read_fd = pipe_fds[0];
-    this->notification_write_fd = pipe_fds[1];
     std::thread rlt([this]() {
         CGEventTapEnable(this->port, true);
         CFRunLoopSourceRef rls = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, this->port, 0);
@@ -66,10 +64,9 @@ bool KeyInterceptor::is_active() {
     return false;
 }
 
-int KeyInterceptor::interceptor_fd() {
-    //return this->kq_fd;
-    return this->notification_read_fd;
-}
+//int KeyInterceptor::interceptor_fd() {
+//    return this->notification_read_fd;
+//}
 
 void KeyInterceptor::add_intercept_action(Keycode code, std::function<void(void)> action_cb) {
     if (code >= this->actions.size()) {
