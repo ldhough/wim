@@ -18,7 +18,6 @@ class EventInterceptor {
 			}
 			this->notification_read_fd = pipe_fds[0];
 			this->notification_write_fd = pipe_fds[1];
-			this->started = true;
 			return static_cast<T*>(this)->_start_internal();
 		}
 		int get_interceptor_fd() {

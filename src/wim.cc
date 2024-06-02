@@ -8,6 +8,8 @@
 #include "display_manager.h"
 #include "key_interceptor.h"
 #include "window_transformer.h"
+//#include "window_manager.h"
+#include "keycodes.h"
 
 #ifdef USING_VOICE_COMMANDS
 #include "voice_interceptor.h"
@@ -17,10 +19,10 @@ using std::cout, std::endl, std::string;
 
 void key_press_callback(struct ev_loop *_loop, ev_io *watcher, int revents) {
 	static unsigned int cb_2_counter = 0;
-	cout << "key_press_callback(): event on fd: " << watcher->fd << endl;
+	//cout << "key_press_callback(): event on fd: " << watcher->fd << endl;
 	char buff[2] = {0};
 	read(watcher->fd, buff, sizeof(buff));
-	cout << "buff is: " << string(buff) << endl;
+	cout << "buff is: " << (Keycode) buff[0] << endl;
 	cb_2_counter++;
 }
 
@@ -28,8 +30,12 @@ int main(int argc, const char **argv) {
     cout << "wim initializing" << endl;
     auto window_pids = PidObserver::get_window_pids();
     for (auto pid : window_pids) {
-        cout << "Window pid: " << pid << endl;
+        //cout << "Window pid: " << pid << endl;
     }
+    PidObserver po([](pid_t pid) {
+        cout << "Top pid is: " << pid << endl;
+    });
+    po.start();
     cout << "Creating key interceptor object" << endl;
     KeyInterceptor ki;
 	int notification_fd = ki.start();

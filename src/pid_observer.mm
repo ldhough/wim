@@ -1,8 +1,10 @@
 #include <iostream>
 #include <vector>
+#include <thread>
 #import <Foundation/Foundation.h>
 #import <CoreGraphics/CoreGraphics.h>
 #include "pid_observer.h"
+#include "stdlib.h"
 
 std::vector<pid_t> PidObserver::get_window_pids() {
     std::vector<pid_t> v;
@@ -26,6 +28,21 @@ std::vector<pid_t> PidObserver::get_window_pids() {
     return v;
 }
 
+PidObserver::PidObserver(std::function<void(pid_t)> cb) : callback(cb) {}
 
+// NOTE: Temporary implementation, TODO: replace
+bool PidObserver::start() {
+    std::thread t([this]() {
+        while (true) {
+            pid_t top_pid = PidObserver::get_window_pids()[0];
+            this->callback(top_pid);
+            sleep(1);
+        }
+    });
+    t.detach();
+    return true;
+}
 
-
+bool PidObserver::stop() {
+    return true;
+}

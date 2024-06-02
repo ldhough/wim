@@ -17,7 +17,7 @@ CGEventRef key_interceptor_callback(CGEventTapProxy proxy, CGEventType event_typ
     int64_t code = CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode);
     KeyInterceptor *ki = (KeyInterceptor*) data;
     //if (code >= ki->actions.size()) return event;
-    cout << "Pressed code: " << code << endl;
+    //cout << "Pressed code: " << code << endl;
     char notification_code = (char) code;
     write(ki->notification_write_fd, &notification_code, 1);
     //auto action = ki->actions[code];

@@ -7,7 +7,6 @@ ifeq ($(UNAME),Darwin)
 	CXXFLAGS += -I/opt/homebrew/opt/libev/include -L/opt/homebrew/opt/libev/lib -lev
 endif
 
-
 IS_APPLE_SILICON = $(shell lipo /bin/zsh -verify_arch arm64e && echo 1 || echo 0)
 ifeq ($(IS_APPLE_SILICON),1)
 	CXXFLAGS += -arch arm64
@@ -18,7 +17,7 @@ ifeq ($(USING_VOICE_COMMANDS),1)
 	CXXFLAGS += -DUSING_VOICE_COMMAND -I external/whisper.cpp
 endif
 
-WIM_SRCS = src/wim.cc src/utils.cc src/pid_observer.mm src/display_manager.mm src/key_interceptor.mm src/window_transformer.mm src/voice_interceptor.cc
+WIM_SRCS = src/wim.cc src/utils.cc src/pid_observer.mm src/display_manager.mm src/key_interceptor.mm src/window_transformer.mm src/voice_interceptor.cc src/keycodes.cc
 WIM_OBJS = $(subst \.cc\|\.mm,.o,$(WIM_SRCS))
 
 all: wim
@@ -29,6 +28,9 @@ clean:
 
 obj/utils.o: src/utils.cc src/utils.h
 	$(CXX) $(CXXFLAGS) -c src/utils.cc -o $@
+
+obj/keycodes.o: src/keycodes.cc src/keycodes.h
+	$(CXX) $(CXXFLAGS) -c src/keycodes.cc -o $@
 
 obj/pid_observer.o: src/pid_observer.mm src/pid_observer.h
 	$(CXX) $(CXXFLAGS) -c src/pid_observer.mm -o $@
