@@ -3,8 +3,9 @@
 
 //#include <whisper.h>
 #include "event_interceptor.h"
+#include "keycodes.h"
 
-class VoiceInterceptor : EventInterceptor<VoiceInterceptor> {
+class VoiceInterceptor : EventInterceptor<VoiceInterceptor, Keycode> {
 	private:
 		//whisper_params params;
 	public:

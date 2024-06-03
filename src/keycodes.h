@@ -2,9 +2,10 @@
 #define KEYCODES_H
 
 #include <iostream>
+#include <cstdint>
 #include "utils.h"
 
-enum Keycode {
+enum Keycode : uint8_t {
     H = 4,
     J = 38,
     K = 40,
@@ -16,7 +17,7 @@ enum Keycode {
     RIGHT = 124,
     DOWN = 125,
     UP = 126,
-    EMPTY = MAX_INT
+    EMPTY = UINT8_MAX
 };
 
 std::ostream& operator<<(std::ostream &os, const Keycode &code);

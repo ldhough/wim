@@ -17,7 +17,7 @@ ifeq ($(USING_VOICE_COMMANDS),1)
 	CXXFLAGS += -DUSING_VOICE_COMMAND -I external/whisper.cpp
 endif
 
-WIM_SRCS = src/wim.cc src/utils.cc src/pid_observer.mm src/display_manager.mm src/key_interceptor.mm src/window_transformer.mm src/voice_interceptor.cc src/keycodes.cc
+WIM_SRCS = src/wim.cc src/utils.cc src/pid_observer.mm src/display_manager.mm src/key_interceptor.mm src/window_transformer.mm src/voice_interceptor.cc src/window_manager.cc src/keycodes.cc
 WIM_OBJS = $(subst \.cc\|\.mm,.o,$(WIM_SRCS))
 
 all: wim
@@ -38,16 +38,19 @@ obj/pid_observer.o: src/pid_observer.mm src/pid_observer.h
 obj/display_manager.o: src/display_manager.mm src/display_manager.h
 	$(CXX) $(CXXFLAGS) -c src/display_manager.mm -o $@
 
+obj/window_manager.o: src/window_manager.cc src/display_manager.h src/key_interceptor.h src/pid_observer.h src/keycodes.h src/window_transformer.h
+	$(CXX) $(CXXFLAGS) -c src/window_manager.cc -o $@
+
 obj/key_interceptor.o: src/key_interceptor.mm src/key_interceptor.h src/keycodes.h src/event_interceptor.h
 	$(CXX) $(CXXFLAGS) -c src/key_interceptor.mm -o $@
 
 #obj/voice_interceptor.o: src/voice_interceptor.cc src/voice_interceptor.h src/event_interceptor.h external/whisper.cpp/whisper.h
 #	$(CXX) $(CXXFLAGS) -c src/voice_interceptor.cc -o $@
 
-obj/window_transformer.o: src/window_transformer.mm src/window_transformer.h
+obj/window_transformer.o: src/window_transformer.mm src/window_transformer.h src/utils.h
 	$(CXX) $(CXXFLAGS) -c src/window_transformer.mm -o $@
 
-obj/wim.o: src/wim.cc src/pid_observer.h src/display_manager.h src/key_interceptor.h src/event_interceptor.h
+obj/wim.o: src/wim.cc src/pid_observer.h src/display_manager.h src/key_interceptor.h src/window_transformer.h src/window_manager.h src/keycodes.h src/event_subscriber.h
 	$(CXX) $(CXXFLAGS) -c src/wim.cc -o $@
 
 wim: $(WIM_OBJS) #external/whisper.cpp/whisper.o

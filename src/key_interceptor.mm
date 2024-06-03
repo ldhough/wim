@@ -16,27 +16,17 @@ extern int errno;
 CGEventRef key_interceptor_callback(CGEventTapProxy proxy, CGEventType event_type, CGEventRef event, void *data) {
     int64_t code = CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode);
     KeyInterceptor *ki = (KeyInterceptor*) data;
-    //if (code >= ki->actions.size()) return event;
-    //cout << "Pressed code: " << code << endl;
     char notification_code = (char) code;
-    write(ki->notification_write_fd, &notification_code, 1);
-    //auto action = ki->actions[code];
-    //if (action == nullptr) return event;
-    //action();
+    ki->__write(&notification_code);
     return event;
 }
 
 KeyInterceptor::KeyInterceptor() {}
 
-KeyInterceptor::~KeyInterceptor() {
-    this->disable();
-}
+KeyInterceptor::~KeyInterceptor() {}
 
-int KeyInterceptor::_start_internal() {
-    if (this->started) return -1;
-    if (this->notification_read_fd == -1 || this->notification_write_fd == -1) {
-        throw std::runtime_error("read and write file descriptors are not set, only call this function from within EventInterceptor::start");
-    }
+bool KeyInterceptor::_start_internal() {
+    if (this->started) return false;
     CGEventMask mask(1 << kCGEventKeyDown);
     this->port = CGEventTapCreate(kCGHIDEventTap,
                                   kCGHeadInsertEventTap,
@@ -52,28 +42,10 @@ int KeyInterceptor::_start_internal() {
         CFRunLoopRun();
     });
     rlt.detach();
-    this->started = true;
-    return this->notification_read_fd;
+    return true;
 }
 
-void KeyInterceptor::disable() {
-    this->started = false;
-}
-
-bool KeyInterceptor::is_active() {
+bool KeyInterceptor::_stop_internal() {
+    // TODO: implement
     return false;
 }
-
-//int KeyInterceptor::interceptor_fd() {
-//    return this->notification_read_fd;
-//}
-
-void KeyInterceptor::add_intercept_action(Keycode code, std::function<void(void)> action_cb) {
-    if (code >= this->actions.size()) {
-        this->actions.resize(code + 1, nullptr);
-    }
-    this->actions[code] = action_cb;
-}
-
-void KeyInterceptor::remove_intercept_action(Keycode code) {}
-
